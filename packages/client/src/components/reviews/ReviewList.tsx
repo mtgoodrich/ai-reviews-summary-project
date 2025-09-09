@@ -1,41 +1,27 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
 import StarRating from "./StarRating";
+import { useReviews, type Review } from "../../hooks/useReviews";
 
 type Props = {
     productId: number;
 };
 
-type Review = {
-    id: number;
-    author: string;
-    content: string;
-    rating: number;
-    createdAt: string;
-};
-
-type GetReviewsResponse = {
-    summary: string | null;
-    reviews: Review[];
-};
-
 const ReviewList = ({ productId }: Props) => {
-    const [reviewData, setReviewData] = useState<GetReviewsResponse>();
+    const {
+        data: reviewData,
+        isPending,
+        isError,
+        isRefetching,
+    } = useReviews({
+        productId,
+    });
 
-    const fetchReviews = async () => {
-        const { data } = await axios.get<GetReviewsResponse>(
-            `/api/products/${productId}/reviews`
-        );
-        setReviewData(data);
-    };
-
-    useEffect(() => {
-        fetchReviews();
-    }, []);
+    if (isRefetching) return <div>Refetching ...</div>;
+    if (isPending) return <div>Loading...</div>;
+    if (isError) return <div>Error!!!</div>;
 
     return (
         <div className="flex flex-col gap-5">
-            {reviewData?.reviews.map((review) => (
+            {reviewData?.reviews.map((review: Review) => (
                 <div key={review.id}>
                     <div className="font-semibold">{review.author}</div>
                     <div>

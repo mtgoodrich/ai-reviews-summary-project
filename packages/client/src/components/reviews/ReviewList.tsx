@@ -1,5 +1,8 @@
-import StarRating from "./StarRating";
 import { useReviews, type Review } from "../../hooks/useReviews";
+import Skeleton from "react-loading-skeleton";
+import StarRating from "./StarRating";
+
+import "react-loading-skeleton/dist/skeleton.css";
 
 type Props = {
     productId: number;
@@ -8,16 +11,45 @@ type Props = {
 const ReviewList = ({ productId }: Props) => {
     const {
         data: reviewData,
-        isPending,
-        isError,
+        isLoading,
+        error,
         isRefetching,
     } = useReviews({
         productId,
     });
 
-    if (isRefetching) return <div>Refetching ...</div>;
-    if (isPending) return <div>Loading...</div>;
-    if (isError) return <div>Error!!!</div>;
+    if (isRefetching)
+        return (
+            <div className="flex flex-col gap-5">
+                {[1, 2, 3].map((i) => (
+                    <div key={i}>
+                        <Skeleton width={150} />
+                        <Skeleton width={100} />
+                        <Skeleton width={350} count={2} />
+                    </div>
+                ))}
+            </div>
+        );
+    if (isLoading)
+        return (
+            <div className="flex flex-col gap-5">
+                {[1, 2, 3].map((i) => (
+                    <div key={i}>
+                        <Skeleton width={150} />
+                        <Skeleton width={100} />
+                        <Skeleton width={350} count={2} />
+                    </div>
+                ))}
+            </div>
+        );
+    if (error)
+        return (
+            <div className="bg-red-500">Error!!! Could not fetch reviews.</div>
+        );
+
+    if (!reviewData?.reviews.length) {
+        return null;
+    }
 
     return (
         <div className="flex flex-col gap-5">
